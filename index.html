@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fork Verification</title>
+    <title>Vortex Verification</title>
     <style>
         body {
             background-image: url('https://files.catbox.moe/lvvpzw.jpeg');
@@ -31,7 +31,7 @@
 </head>
 <body>
     <div class="container">
-        <h2>Verification</h2>
+        <h2>Fork Verification for Deployment</h2>
         <p>Enter your GitHub username:</p>
         <input type="text" id="username" placeholder="GitHub Username">
         <button onclick="checkFork()">Verify Fork</button>
@@ -77,8 +77,8 @@
                             <button onclick="checkFork()">Re-Verify</button>
                         `;
                     } else {
-                        // Generate Heroku Deploy Link
-                        const herokuDeployUrl = `https://heroku.com/deploy?template=https://github.com/${username}/VORTEX-XMD`;
+                        // Updated Heroku Deployment Link
+                        const herokuDeployUrl = `https://dashboard.heroku.com/new?template=https://github.com/${username}/VORTEX-XMD`;
 
                         document.getElementById("result").innerHTML = `
                             <p>Your fork is up-to-date!</p>
