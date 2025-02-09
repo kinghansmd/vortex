@@ -108,10 +108,6 @@
         #buttons {
             margin-top: 20px;
         }
-
-        #password-field {
-            display: none;
-        }
     </style>
 </head>
 <body onload="showContent()">
@@ -130,17 +126,9 @@
             <p>Enter your GitHub username:</p>
             <input type="text" id="username" placeholder="GitHub Username">
 
-            <div id="password-field">
-                <p>Enter Sudo Password:</p>
-                <input type="password" id="password" placeholder="Enter Password">
-            </div>
-
             <div id="buttons">
                 <div id="btn-verify" class="btn-container">
-                    <button onclick="checkUsername()">VERIFY</button>
-                </div>
-                <div id="btn-password" class="btn-container">
-                    <button onclick="verifySudo()">VERIFY YOU GIT</button>
+                    <button onclick="checkFork()">VERIFY</button>
                 </div>
                 <div id="btn-fork" class="btn-container">
                     <a href="https://github.com/Mrhanstz/VORTEX-XMD/fork" target="_blank">
@@ -151,9 +139,6 @@
                     <a id="deploy-link" href="#" target="_blank">
                         <button>DEPLOY TO HEROKU</button>
                     </a>
-                </div>
-                <div id="btn-sync" class="btn-container">
-                    <button onclick="reVerify()">RE-VERIFY</button>
                 </div>
             </div>
         </div>
@@ -179,28 +164,26 @@
             messageBox.style.display = 'block';
         }
 
-        function checkUsername() {
+        async function checkFork() {
             const username = document.getElementById("username").value.trim();
             if (!username) {
                 showMessage("Please enter your GitHub username.");
                 return;
             }
 
-            checkFork(username);
-        }
-
-        async function checkFork(username) {
             try {
                 const response = await fetch(`https://api.github.com/repos/${username}/VORTEX-XMD`);
                 const data = await response.json();
 
                 if (response.status === 404) {
                     startCountdown("Error: Fork not found. Refreshing in", 20);
+                    showButton("btn-fork");
                     return;
                 }
 
-                showMessage("Repo verified. Proceeding to next step.");
+                showMessage("Repo verified. Proceeding to deployment.");
                 showButton("btn-deploy");
+                document.getElementById("deploy-link").href = `https://dashboard.heroku.com/new?template=https://github.com/${username}/VORTEX-XMD`;
             } catch (error) {
                 startCountdown("Error fetching data. Refreshing in", 20);
             }
@@ -217,12 +200,6 @@
                     location.reload();
                 }
             }, 1000);
-        }
-
-        function reVerify() {
-            document.getElementById("username").value = "";
-            showButton("btn-verify");
-            showMessage("Please enter your GitHub username.");
         }
     </script>
 </body>
