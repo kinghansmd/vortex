@@ -31,7 +31,7 @@
 </head>
 <body>
     <div class="container">
-        <h2>Fork Verification for Deployment</h2>
+        <h2>Verification</h2>
         <p>Enter your GitHub username:</p>
         <input type="text" id="username" placeholder="GitHub Username">
         <button onclick="checkFork()">Verify Fork</button>
@@ -73,11 +73,13 @@
                             <a href="https://github.com/${username}/VORTEX-XMD" target="_blank">
                                 <button>Sync Fork</button>
                             </a>
+                            <br><br>
+                            <button onclick="checkFork()">Re-Verify</button>
                         `;
                     } else {
-                        // Fixed Heroku Deployment Link
+                        // Generate Heroku Deploy Link
                         const herokuDeployUrl = `https://heroku.com/deploy?template=https://github.com/${username}/VORTEX-XMD`;
-                        
+
                         document.getElementById("result").innerHTML = `
                             <p>Your fork is up-to-date!</p>
                             <a href="${herokuDeployUrl}" target="_blank">
