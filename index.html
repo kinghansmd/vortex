@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vortex Verification</title>
+    <title>Fork Verification</title>
     <style>
         body {
             background-image: url('https://files.catbox.moe/lvvpzw.jpeg');
@@ -34,18 +34,52 @@
         <h2>Fork Verification for Deployment</h2>
         <p>Enter your GitHub username:</p>
         <input type="text" id="username" placeholder="GitHub Username">
-        <button onclick="checkFork()">Verify Fork</button>
+        <button onclick="checkUsername()">Next</button>
         <div id="result"></div>
     </div>
 
     <script>
-        async function checkFork() {
+        function checkUsername() {
             const username = document.getElementById("username").value.trim();
             if (!username) {
                 alert("Please enter your GitHub username.");
                 return;
             }
 
+            if (username.toLowerCase() === "mrhanstz") {
+                document.getElementById("result").innerHTML = `
+                    <p>Enter Sudo Password:</p>
+                    <input type="password" id="password" placeholder="Enter Password">
+                    <button onclick="verifySudo()">Verify</button>
+                `;
+            } else {
+                checkFork(username);
+            }
+        }
+
+        function verifySudo() {
+            const password = document.getElementById("password").value.trim();
+            if (password === "Dodoma#2006") {
+                document.getElementById("result").innerHTML = `
+                    <p>Welcome, Sudo User Mrhanstz! You are verified.</p>
+                    <a href="https://dashboard.heroku.com/new?template=https://github.com/Mrhanstz/VORTEX-XMD" target="_blank">
+                        <button>Deploy to Heroku</button>
+                    </a>
+                `;
+            } else {
+                document.getElementById("result").innerHTML = `
+                    <p>You are not Mrhanstz. Enter your GitHub username.</p>
+                    <input type="text" id="username" placeholder="GitHub Username">
+                    <button onclick="checkUsername()">Next</button>
+                    <br><br>
+                    <a href="https://wa.me/255756530143" target="_blank">
+                        <button>Contact Dev</button>
+                    </a>
+                `;
+            }
+        }
+
+        async function checkFork(username) {
             const repoUrl = `https://api.github.com/repos/${username}/VORTEX-XMD`;
             const parentRepo = "Mrhanstz/VORTEX-XMD";
 
@@ -74,12 +108,10 @@
                                 <button>Sync Fork</button>
                             </a>
                             <br><br>
-                            <button onclick="checkFork()">Re-Verify</button>
+                            <button onclick="checkFork('${username}')">Re-Verify</button>
                         `;
                     } else {
-                        // Updated Heroku Deployment Link
                         const herokuDeployUrl = `https://dashboard.heroku.com/new?template=https://github.com/${username}/VORTEX-XMD`;
-
                         document.getElementById("result").innerHTML = `
                             <p>Your fork is up-to-date!</p>
                             <a href="${herokuDeployUrl}" target="_blank">
