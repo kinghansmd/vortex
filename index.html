@@ -3,55 +3,191 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vortex xmd Verification</title>
+    <title>Fork Verification</title>
     <style>
         body {
-            background-image: url('https://files.catbox.moe/lvvpzw.jpeg');
+            background: url('https://files.catbox.moe/lvvpzw.jpeg') no-repeat center center fixed;
             background-size: cover;
             text-align: center;
             color: white;
             font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
         }
+
+        /* Loading screen */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 9999;
+        }
+
+        .loader-img {
+            width: 80px;
+            height: 80px;
+            background: url('https://files.catbox.moe/lvvpzw.jpeg') no-repeat center center;
+            background-size: cover;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Message Box */
+        #message-box {
+            padding: 10px;
+            background-color: #FF5733; /* Bright red-orange */
+            color: white;
+            font-weight: bold;
+            font-size: 17px;
+            margin-bottom: 20px;
+            display: none;
+            border-radius: 7px;
+            box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Buttons and Frame */
         .container {
-            margin-top: 50px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             padding: 20px;
             background: rgba(0, 0, 0, 0.7);
-            display: inline-block;
             border-radius: 10px;
+            width: 80%;
+            max-width: 400px;
         }
+
         input, button {
             margin: 10px;
-            padding: 10px;
-            font-size: 16px;
+            padding: 8px;
+            font-size: 20px;
+            width: 90%;
         }
-        button {
+
+        #buttons {
+            margin-top: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 5px;
+        }
+
+        .btn-container {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .btn-container button {
+            width: 100%;
+            padding: 6px;
+            font-size: 14px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 5px;
             cursor: pointer;
+        }
+
+        .btn-container button:hover {
+            background-color: #555;
+        }
+
+        #password-field {
+            display: none;
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <h2>Fork Verification for Deployment</h2>
-        <p>Enter your GitHub username:</p>
-        <input type="text" id="username" placeholder="GitHub Username">
-        <button onclick="checkUsername()">Next</button>
-        <div id="result"></div>
+<body onload="showContent()">
+    
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+        <div class="loader-img"></div>
+        <p id="loading-text">Loading.... Live Loading</p>
+    </div>
+
+    <!-- Main Content -->
+    <div id="main-content" style="display: none;">
+        <div class="container">
+            <h2>Fork Verification for Deployment</h2>
+            <div id="message-box"></div>
+            <p>Enter your GitHub username:</p>
+            <input type="text" id="username" placeholder="GitHub Username">
+            <div id="password-field">
+                <p>Enter Sudo Password:</p>
+                <input type="password" id="password" placeholder="Enter Password">
+            </div>
+
+            <!-- Buttons Frame -->
+            <div id="buttons">
+                <div id="btn-verify" class="btn-container">
+                    <button onclick="checkUsername()">VERIFY</button>
+                </div>
+                <div id="btn-password" class="btn-container">
+                    <button onclick="verifySudo()">VERIFY YOU GIT</button>
+                </div>
+                <div id="btn-fork" class="btn-container">
+                    <a href="https://github.com/Mrhanstz/VORTEX-XMD/fork" target="_blank">
+                        <button>FORK REPO</button>
+                    </a>
+                </div>
+                <div id="btn-deploy" class="btn-container">
+                    <a id="deploy-link" href="#" target="_blank">
+                        <button>DEPLOY TO HEROKU</button>
+                    </a>
+                </div>
+                <div id="btn-sync" class="btn-container">
+                    <button onclick="reVerify()">RE-VERIFY</button>
+                </div>
+                <div id="btn-contact" class="btn-container">
+                    <a href="https://wa.me/255756530143" target="_blank">
+                        <button>CONTACT DEV</button>
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
+        function showContent() {
+            setTimeout(() => {
+                document.getElementById("loading-screen").style.display = "none";
+                document.getElementById("main-content").style.display = "block";
+                showButton("btn-verify");
+            }, 2300);  // 4.7 seconds
+        }
+
+        function showButton(id) {
+            document.querySelectorAll('.btn-container').forEach(btn => btn.style.display = 'none');
+            document.getElementById(id).style.display = 'block';
+        }
+
+        function showMessage(message) {
+            const messageBox = document.getElementById('message-box');
+            messageBox.textContent = message;
+            messageBox.style.display = 'block';
+        }
+
         function checkUsername() {
             const username = document.getElementById("username").value.trim();
             if (!username) {
-                alert("Please enter your GitHub username.");
+                showMessage("Please enter your GitHub username.");
                 return;
             }
 
             if (username.toLowerCase() === "mrhanstz") {
-                document.getElementById("result").innerHTML = `
-                    <p>Enter Sudo Password:</p>
-                    <input type="password" id="password" placeholder="Enter Password">
-                    <button onclick="verifySudo()">Verify</button>
-                `;
+                document.getElementById("password-field").style.display = "block";
+                showButton("btn-password");
             } else {
                 checkFork(username);
             }
@@ -59,23 +195,13 @@
 
         function verifySudo() {
             const password = document.getElementById("password").value.trim();
-            if (password === "Dodoma2006#") {
-                document.getElementById("result").innerHTML = `
-                    <p>Welcome, Sudo User Mrhanstz! You are verified.</p>
-                    <a href="https://dashboard.heroku.com/new?template=https://github.com/Mrhanstz/VORTEX-XMD" target="_blank">
-                        <button>Deploy to Heroku</button>
-                    </a>
-                `;
+            if (password === "Dodoma#2006") {
+                document.getElementById("password-field").style.display = "none";
+                showButton("btn-deploy");
+                document.getElementById("deploy-link").href = "https://dashboard.heroku.com/new?template=https://github.com/Mrhanstz/VORTEX-XMD";
             } else {
-                document.getElementById("result").innerHTML = `
-                    <p>You are not Mrhanstz. Enter your GitHub username.</p>
-                    <input type="text" id="username" placeholder="GitHub Username">
-                    <button onclick="checkUsername()">Next</button>
-                    <br><br>
-                    <a href="https://wa.me/255756530143" target="_blank">
-                        <button>Contact Dev</button>
-                    </a>
-                `;
+                showMessage("Incorrect password. Please try again.");
+                showButton("btn-contact");
             }
         }
 
@@ -88,12 +214,8 @@
                 const forkedRepo = await response.json();
 
                 if (response.status === 404 || forkedRepo.message === "Not Found") {
-                    document.getElementById("result").innerHTML = `
-                        <p>You have not forked the repository.</p>
-                        <a href="https://github.com/Mrhanstz/VORTEX-XMD/fork" target="_blank">
-                            <button>Fork Repo</button>
-                        </a>
-                    `;
+                    showMessage("You have not forked the repo. Please fork it first.");
+                    showButton("btn-fork");
                     return;
                 }
 
@@ -102,29 +224,19 @@
                     const forkSha = await getLatestCommit(`${username}/VORTEX-XMD`);
 
                     if (parentSha !== forkSha) {
-                        document.getElementById("result").innerHTML = `
-                            <p>Your fork is outdated. Please sync with the original repo.</p>
-                            <a href="https://github.com/${username}/VORTEX-XMD" target="_blank">
-                                <button>Sync Fork</button>
-                            </a>
-                            <br><br>
-                            <button onclick="checkFork('${username}')">Re-Verify</button>
-                        `;
+                        showMessage("Your fork is outdated. Please sync it with the original repo.");
+                        showButton("btn-sync");
                     } else {
-                        const herokuDeployUrl = `https://dashboard.heroku.com/new?template=https://github.com/${username}/VORTEX-XMD`;
-                        document.getElementById("result").innerHTML = `
-                            <p>Your fork is up-to-date!</p>
-                            <a href="${herokuDeployUrl}" target="_blank">
-                                <button>Deploy to Heroku</button>
-                            </a>
-                        `;
+                        showMessage("Your fork is up-to-date. You can deploy it.");
+                        showButton("btn-deploy");
+                        document.getElementById("deploy-link").href = `https://dashboard.heroku.com/new?template=https://github.com/${username}/VORTEX-XMD`;
                     }
                 } else {
-                    document.getElementById("result").innerHTML = "<p>Unexpected error. Please try again.</p>";
+                    showMessage("Unexpected error. Please try again.");
                 }
             } catch (error) {
                 console.error(error);
-                document.getElementById("result").innerHTML = "<p>Error fetching data. Try again later.</p>";
+                showMessage("Error fetching data. Try again later.");
             }
         }
 
@@ -137,6 +249,12 @@
                 console.error("Error fetching commits:", error);
                 return null;
             }
+        }
+
+        function reVerify() {
+            document.getElementById("username").value = "";
+            showButton("btn-verify");
+            showMessage("Please enter your GitHub username.");
         }
     </script>
 </body>
