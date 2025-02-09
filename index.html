@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-scale=1.0">
     <title>Vortex Verification</title>
     <style>
         body {
@@ -32,6 +32,25 @@
             align-items: center;
             flex-direction: column;
             z-index: 9999;
+        }
+
+        /* Rotating Image Animation */
+        .loader-img {
+            background-image: url('https://files.catbox.moe/lvvpzw.jpeg');
+            background-size: cover;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            animation: rotate 10s infinite linear; /* Slow down rotation */
+        }
+
+        @keyframes rotate {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         /* Main Content */
@@ -155,7 +174,7 @@
                 document.getElementById("loading-screen").style.display = "none";
                 document.getElementById("main-content").style.display = "block";
                 showButton("btn-verify");
-            }, 2300);  // 4.7 seconds
+            }, 2300);  // 2.3 seconds
         }
 
         function showButton(id) {
@@ -167,6 +186,19 @@
             const messageBox = document.getElementById('message-box');
             messageBox.textContent = message;
             messageBox.style.display = 'block';
+        }
+
+        function autoRefresh() {
+            let countdown = 20; // Start countdown from 20
+            const messageBox = document.getElementById('message-box');
+            const countdownInterval = setInterval(() => {
+                messageBox.textContent = `The page will refresh in ${countdown} seconds...`;
+                countdown--;
+                if (countdown < 0) {
+                    clearInterval(countdownInterval);
+                    window.location.reload();  // Refresh after countdown
+                }
+            }, 1000);  // Update every second
         }
 
         function checkUsername() {
@@ -193,6 +225,7 @@
             } else {
                 showMessage("Incorrect password. Please try again.");
                 showButton("btn-contact");
+                autoRefresh();  // Start countdown for page refresh after error message
             }
         }
 
@@ -228,6 +261,7 @@
             } catch (error) {
                 console.error(error);
                 showMessage("Error fetching data. Try again later.");
+                autoRefresh();  // Start countdown for page refresh after error message
             }
         }
 
@@ -250,3 +284,290 @@
     </script>
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-scale=1.0">
+    <title>Vortex Verification</title>
+    <style>
+        body {
+            background: url('https://files.catbox.moe/lvvpzw.jpeg') no-repeat center center fixed;
+            background-size: cover;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+        }
+
+        /* Loading Screen */
+        #loading-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 9999;
+        }
+
+        /* Rotating Image Animation */
+        .loader-img {
+            background-image: url('https://files.catbox.moe/lvvpzw.jpeg');
+            background-size: cover;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            animation: rotate 10s infinite linear; /* Slow down rotation */
+        }
+
+        @keyframes rotate {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Main Content */
+        .container {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+            width: 300px;
+            max-width: 90%;
+        }
+
+        h2 {
+            font-size: 22px;
+            color: #ff4081;
+            margin-bottom: 15px;
+        }
+
+        input, button {
+            margin: 10px 0;
+            padding: 10px;
+            font-size: 16px;
+            width: 100%;
+            border-radius: 6px;
+            border: 1px solid #555;
+            outline: none;
+        }
+
+        input {
+            background-color: #333;
+            color: white;
+        }
+
+        button {
+            background-color: #6200ea;
+            color: white;
+            cursor: pointer;
+            border: none;
+        }
+
+        button:hover {
+            background-color: #3700b3;
+        }
+
+        .message {
+            font-size: 14px;
+            color: #fff;
+            background-color: #ff5722;
+            padding: 8px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .btn-container {
+            display: none;
+        }
+
+        #buttons {
+            margin-top: 20px;
+        }
+
+        #password-field {
+            display: none;
+        }
+    </style>
+</head>
+<body onload="showContent()">
+    
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+        <div class="loader-img"></div>
+        <p style="color: white;">Vortex Xmd Loading...</p>
+    </div>
+
+    <!-- Main Content -->
+    <div id="main-content" style="display: none;">
+        <div class="container">
+            <h2>Verification for Deployment</h2>
+            <div id="message-box" class="message"></div>
+            <p>Enter your GitHub username:</p>
+            <input type="text" id="username" placeholder="GitHub Username">
+
+            <div id="password-field" style="display: none;">
+                <p>Enter Sudo Password:</p>
+                <input type="password" id="password" placeholder="Enter Password">
+            </div>
+
+            <div id="buttons">
+                <div id="btn-verify" class="btn-container">
+                    <button onclick="checkUsername()">VERIFY</button>
+                </div>
+                <div id="btn-password" class="btn-container">
+                    <button onclick="verifySudo()">VERIFY YOU GIT</button>
+                </div>
+                <div id="btn-fork" class="btn-container">
+                    <a href="https://github.com/Mrhanstz/VORTEX-XMD/fork" target="_blank">
+                        <button>FORK REPO</button>
+                    </a>
+                </div>
+                <div id="btn-deploy" class="btn-container">
+                    <a id="deploy-link" href="#" target="_blank">
+                        <button>DEPLOY TO HEROKU</button>
+                    </a>
+                </div>
+                <div id="btn-sync" class="btn-container">
+                    <button onclick="reVerify()">RE-VERIFY</button>
+                </div>
+                <div id="btn-contact" class="btn-container">
+                    <a href="https://wa.me/255756530143" target="_blank">
+                        <button>CONTACT DEV</button>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showContent() {
+            setTimeout(() => {
+                document.getElementById("loading-screen").style.display = "none";
+                document.getElementById("main-content").style.display = "block";
+                showButton("btn-verify");
+            }, 2300);  // 2.3 seconds
+        }
+
+        function showButton(id) {
+            document.querySelectorAll('.btn-container').forEach(btn => btn.style.display = 'none');
+            document.getElementById(id).style.display = 'block';
+        }
+
+        function showMessage(message) {
+            const messageBox = document.getElementById('message-box');
+            messageBox.textContent = message;
+            messageBox.style.display = 'block';
+        }
+
+        function autoRefresh() {
+            let countdown = 20; // Start countdown from 20
+            const messageBox = document.getElementById('message-box');
+            const countdownInterval = setInterval(() => {
+                messageBox.textContent = `The page will refresh in ${countdown} seconds...`;
+                countdown--;
+                if (countdown < 0) {
+                    clearInterval(countdownInterval);
+                    window.location.reload();  // Refresh after countdown
+                }
+            }, 1000);  // Update every second
+        }
+
+        function checkUsername() {
+            const username = document.getElementById("username").value.trim();
+            if (!username) {
+                showMessage("Please enter your GitHub username.");
+                return;
+            }
+
+            if (username.toLowerCase() === "mrhanstz") {
+                document.getElementById("password-field").style.display = "block";
+                showButton("btn-password");
+            } else {
+                checkFork(username);
+            }
+        }
+
+        function verifySudo() {
+            const password = document.getElementById("password").value.trim();
+            if (password === "Dodoma#2006") {
+                document.getElementById("password-field").style.display = "none";
+                showButton("btn-deploy");
+                document.getElementById("deploy-link").href = "https://dashboard.heroku.com/new?template=https://github.com/Mrhanstz/VORTEX-XMD";
+            } else {
+                showMessage("Incorrect password. Please try again.");
+                showButton("btn-contact");
+                autoRefresh();  // Start countdown for page refresh after error message
+            }
+        }
+
+        async function checkFork(username) {
+            const repoUrl = `https://api.github.com/repos/${username}/VORTEX-XMD`;
+            const parentRepo = "Mrhanstz/VORTEX-XMD";
+
+            try {
+                const response = await fetch(repoUrl);
+                const forkedRepo = await response.json();
+
+                if (response.status === 404 || forkedRepo.message === "Not Found") {
+                    showMessage("You have not forked the repo. Please fork it first.");
+                    showButton("btn-fork");
+                    return;
+                }
+
+                if (forkedRepo.fork && forkedRepo.parent && forkedRepo.parent.full_name === parentRepo) {
+                    const parentSha = await getLatestCommit(parentRepo);
+                    const forkSha = await getLatestCommit(`${username}/VORTEX-XMD`);
+
+                    if (parentSha !== forkSha) {
+                        showMessage("Your fork is outdated. Please sync it with the original repo.");
+                        showButton("btn-sync");
+                    } else {
+                        showMessage("Your fork is up-to-date. You can deploy it.");
+                        showButton("btn-deploy");
+                        document.getElementById("deploy-link").href = `https://dashboard.heroku.com/new?template=https://github.com/${username}/VORTEX-XMD`;
+                    }
+                } else {
+                    showMessage("Unexpected error. Please try again.");
+                }
+            } catch (error) {
+                console.error(error);
+                showMessage("Error fetching data. Try again later.");
+                autoRefresh();  // Start countdown for page refresh after error message
+            }
+        }
+
+        async function getLatestCommit(repo) {
+            try {
+                const response = await fetch(`https://api.github.com/repos/${repo}/commits`);
+                const data = await response.json();
+                return data[0]?.sha || null;
+            } catch (error) {
+                console.error("Error fetching commits:", error);
+                return null;
+            }
+        }
+
+        function reVerify() {
+            document.getElementById("username").value = "";
+            showButton("btn-verify");
+            showMessage("Please enter your GitHub username.");
+        }
+    </script>
+</body>
+    </html>
+    
