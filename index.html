@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vortex Verification</title>
     <style>
         body {
@@ -34,43 +34,43 @@
             z-index: 9999;
         }
 
-        /* Rotating Image Animation */
+        /* Rotating Image */
         .loader-img {
-            background-image: url('https://files.catbox.moe/lvvpzw.jpeg');
+            width: 100px;
+            height: 100px;
+            background: url('https://files.catbox.moe/lvvpzw.jpeg') no-repeat center center;
             background-size: cover;
-            width: 150px;
-            height: 150px;
             border-radius: 50%;
-            animation: rotate 10s infinite linear; /* Smooth slow rotation */
+            animation: rotate 5s linear infinite;
         }
 
         @keyframes rotate {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
         /* Main Content */
         .container {
             background: rgba(0, 0, 0, 0.7);
-            padding: 20px;
-            border-radius: 8px;
+            padding: 25px;
+            border-radius: 10px;
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
-            width: 300px;
-            max-width: 90%;
+            width: 90%;
+            max-width: 400px;
         }
 
         h2 {
-            font-size: 22px;
+            font-size: 24px;
             color: #ff4081;
             margin-bottom: 15px;
         }
 
         input, button {
             margin: 10px 0;
-            padding: 10px;
-            font-size: 16px;
+            padding: 12px;
+            font-size: 18px;
             width: 100%;
-            border-radius: 6px;
+            border-radius: 8px;
             border: 1px solid #555;
             outline: none;
         }
@@ -92,34 +92,34 @@
         }
 
         .message {
-            font-size: 14px;
+            font-size: 16px;
             color: #fff;
             background-color: #ff5722;
-            padding: 8px;
-            border-radius: 5px;
+            padding: 10px;
+            border-radius: 6px;
             margin-bottom: 15px;
             display: none;
         }
 
-        /* Countdown Message */
-        #countdown-box {
+        .btn-container {
             display: none;
-            font-size: 16px;
-            font-weight: bold;
-            color: yellow;
-            background: rgba(0, 0, 0, 0.6);
-            padding: 10px;
-            border-radius: 5px;
-            margin-top: 15px;
+        }
+
+        #buttons {
+            margin-top: 20px;
+        }
+
+        #password-field {
+            display: none;
         }
     </style>
 </head>
 <body onload="showContent()">
     
-    <!-- Loading Screen (4 Seconds) -->
+    <!-- Loading Screen -->
     <div id="loading-screen">
         <div class="loader-img"></div>
-        <p style="color: white;">Loading....</p>
+        <p style="color: white;">Vortex Xmd Loading...</p>
     </div>
 
     <!-- Main Content -->
@@ -127,10 +127,35 @@
         <div class="container">
             <h2>Verification for Deployment</h2>
             <div id="message-box" class="message"></div>
-            <div id="countdown-box"></div> <!-- Countdown Message Box -->
             <p>Enter your GitHub username:</p>
             <input type="text" id="username" placeholder="GitHub Username">
-            <button onclick="checkUsername()">VERIFY</button>
+
+            <div id="password-field">
+                <p>Enter Sudo Password:</p>
+                <input type="password" id="password" placeholder="Enter Password">
+            </div>
+
+            <div id="buttons">
+                <div id="btn-verify" class="btn-container">
+                    <button onclick="checkUsername()">VERIFY</button>
+                </div>
+                <div id="btn-password" class="btn-container">
+                    <button onclick="verifySudo()">VERIFY YOU GIT</button>
+                </div>
+                <div id="btn-fork" class="btn-container">
+                    <a href="https://github.com/Mrhanstz/VORTEX-XMD/fork" target="_blank">
+                        <button>FORK REPO</button>
+                    </a>
+                </div>
+                <div id="btn-deploy" class="btn-container">
+                    <a id="deploy-link" href="#" target="_blank">
+                        <button>DEPLOY TO HEROKU</button>
+                    </a>
+                </div>
+                <div id="btn-sync" class="btn-container">
+                    <button onclick="reVerify()">RE-VERIFY</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -139,7 +164,13 @@
             setTimeout(() => {
                 document.getElementById("loading-screen").style.display = "none";
                 document.getElementById("main-content").style.display = "block";
-            }, 4000);  // **4-second delay**
+                showButton("btn-verify");
+            }, 4000); // 4-second loading screen
+        }
+
+        function showButton(id) {
+            document.querySelectorAll('.btn-container').forEach(btn => btn.style.display = 'none');
+            document.getElementById(id).style.display = 'block';
         }
 
         function showMessage(message) {
@@ -155,75 +186,43 @@
                 return;
             }
 
-            if (username.toLowerCase() === "mrhanstz") {
-                showMessage("Admin account detected.");
-            } else {
-                checkFork(username);
-            }
+            checkFork(username);
         }
 
         async function checkFork(username) {
-            const repoUrl = `https://api.github.com/repos/${username}/VORTEX-XMD`;
-            const parentRepo = "Mrhanstz/VORTEX-XMD";
-
             try {
-                const response = await fetch(repoUrl);
-                const forkedRepo = await response.json();
+                const response = await fetch(`https://api.github.com/repos/${username}/VORTEX-XMD`);
+                const data = await response.json();
 
-                if (response.status === 404 || forkedRepo.message === "Not Found") {
-                    showMessage("You have not forked the repo. Please fork it first.");
-                    startCountdown(20); // **Start 20-sec countdown before auto-refresh**
+                if (response.status === 404) {
+                    startCountdown("Error: Fork not found. Refreshing in", 20);
                     return;
                 }
 
-                if (forkedRepo.fork && forkedRepo.parent && forkedRepo.parent.full_name === parentRepo) {
-                    const parentSha = await getLatestCommit(parentRepo);
-                    const forkSha = await getLatestCommit(`${username}/VORTEX-XMD`);
-
-                    if (parentSha !== forkSha) {
-                        showMessage("Your fork is outdated. Please sync it with the original repo.");
-                        startCountdown(20); // **Start 20-sec countdown before auto-refresh**
-                    } else {
-                        showMessage("Your fork is up-to-date. You can deploy it.");
-                    }
-                } else {
-                    showMessage("Unexpected error. Please try again.");
-                    startCountdown(20); // **Start 20-sec countdown before auto-refresh**
-                }
+                showMessage("Repo verified. Proceeding to next step.");
+                showButton("btn-deploy");
             } catch (error) {
-                console.error(error);
-                showMessage("Error fetching data. Try again later.");
-                startCountdown(20); // **Start 20-sec countdown before auto-refresh**
+                startCountdown("Error fetching data. Refreshing in", 20);
             }
         }
 
-        async function getLatestCommit(repo) {
-            try {
-                const response = await fetch(`https://api.github.com/repos/${repo}/commits`);
-                const data = await response.json();
-                return data[0]?.sha || null;
-            } catch (error) {
-                console.error("Error fetching commits:", error);
-                return null;
-            }
+        function startCountdown(errorMessage, seconds) {
+            let count = seconds;
+            showMessage(`${errorMessage} ${count} seconds...`);
+            const countdown = setInterval(() => {
+                count--;
+                showMessage(`${errorMessage} ${count} seconds...`);
+                if (count === 0) {
+                    clearInterval(countdown);
+                    location.reload();
+                }
+            }, 1000);
         }
 
-        function startCountdown(seconds) {
-            const countdownBox = document.getElementById("countdown-box");
-            countdownBox.style.display = "block";
-            let counter = seconds;
-
-            function updateCountdown() {
-                countdownBox.textContent = `Auto-refreshing in ${counter} seconds...`;
-                if (counter === 0) {
-                    location.reload(); // **Refresh Page**
-                } else {
-                    counter--;
-                    setTimeout(updateCountdown, 1000);
-                }
-            }
-
-            updateCountdown();
+        function reVerify() {
+            document.getElementById("username").value = "";
+            showButton("btn-verify");
+            showMessage("Please enter your GitHub username.");
         }
     </script>
 </body>
