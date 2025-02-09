@@ -34,43 +34,28 @@
             z-index: 9999;
         }
 
-        /* Rotating Image */
-        .loader-img {
-            width: 100px;
-            height: 100px;
-            background: url('https://files.catbox.moe/lvvpzw.jpeg') no-repeat center center;
-            background-size: cover;
-            border-radius: 50%;
-            animation: rotate 5s linear infinite;
-        }
-
-        @keyframes rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
         /* Main Content */
         .container {
             background: rgba(0, 0, 0, 0.7);
-            padding: 25px;
-            border-radius: 10px;
+            padding: 20px;
+            border-radius: 8px;
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
-            width: 90%;
-            max-width: 400px;
+            width: 300px;
+            max-width: 90%;
         }
 
         h2 {
-            font-size: 24px;
+            font-size: 22px;
             color: #ff4081;
             margin-bottom: 15px;
         }
 
         input, button {
             margin: 10px 0;
-            padding: 12px;
-            font-size: 18px;
+            padding: 10px;
+            font-size: 16px;
             width: 100%;
-            border-radius: 8px;
+            border-radius: 6px;
             border: 1px solid #555;
             outline: none;
         }
@@ -92,11 +77,11 @@
         }
 
         .message {
-            font-size: 16px;
+            font-size: 14px;
             color: #fff;
             background-color: #ff5722;
-            padding: 10px;
-            border-radius: 6px;
+            padding: 8px;
+            border-radius: 5px;
             margin-bottom: 15px;
             display: none;
         }
@@ -107,6 +92,10 @@
 
         #buttons {
             margin-top: 20px;
+        }
+
+        #password-field {
+            display: none;
         }
     </style>
 </head>
@@ -126,9 +115,17 @@
             <p>Enter your GitHub username:</p>
             <input type="text" id="username" placeholder="GitHub Username">
 
+            <div id="password-field" style="display: none;">
+                <p>Enter Sudo Password:</p>
+                <input type="password" id="password" placeholder="Enter Password">
+            </div>
+
             <div id="buttons">
                 <div id="btn-verify" class="btn-container">
-                    <button onclick="checkFork()">VERIFY</button>
+                    <button onclick="checkUsername()">VERIFY</button>
+                </div>
+                <div id="btn-password" class="btn-container">
+                    <button onclick="verifySudo()">VERIFY YOU GIT</button>
                 </div>
                 <div id="btn-fork" class="btn-container">
                     <a href="https://github.com/Mrhanstz/VORTEX-XMD/fork" target="_blank">
@@ -138,6 +135,14 @@
                 <div id="btn-deploy" class="btn-container">
                     <a id="deploy-link" href="#" target="_blank">
                         <button>DEPLOY TO HEROKU</button>
+                    </a>
+                </div>
+                <div id="btn-sync" class="btn-container">
+                    <button onclick="reVerify()">RE-VERIFY</button>
+                </div>
+                <div id="btn-contact" class="btn-container">
+                    <a href="https://wa.me/255756530143" target="_blank">
+                        <button>CONTACT DEV</button>
                     </a>
                 </div>
             </div>
@@ -150,7 +155,7 @@
                 document.getElementById("loading-screen").style.display = "none";
                 document.getElementById("main-content").style.display = "block";
                 showButton("btn-verify");
-            }, 4000); // 4-second loading screen
+            }, 2300);  // 2.3 seconds
         }
 
         function showButton(id) {
@@ -162,44 +167,92 @@
             const messageBox = document.getElementById('message-box');
             messageBox.textContent = message;
             messageBox.style.display = 'block';
+            autoRefresh(); // Trigger refresh if an error occurs
         }
 
-        async function checkFork() {
+        function autoRefresh() {
+            setTimeout(() => {
+                window.location.reload();
+            }, 7400);  // Refresh after 7.4 seconds
+        }
+
+        function checkUsername() {
             const username = document.getElementById("username").value.trim();
             if (!username) {
                 showMessage("Please enter your GitHub username.");
                 return;
             }
 
-            try {
-                const response = await fetch(`https://api.github.com/repos/${username}/VORTEX-XMD`);
-                const data = await response.json();
+            if (username.toLowerCase() === "mrhanstz") {
+                document.getElementById("password-field").style.display = "block";
+                showButton("btn-password");
+            } else {
+                checkFork(username);
+            }
+        }
 
-                if (response.status === 404) {
-                    startCountdown("Error: Fork not found. Refreshing in", 20);
+        function verifySudo() {
+            const password = document.getElementById("password").value.trim();
+            if (password === "Dodoma#2006") {
+                document.getElementById("password-field").style.display = "none";
+                showButton("btn-deploy");
+                document.getElementById("deploy-link").href = "https://dashboard.heroku.com/new?template=https://github.com/Mrhanstz/VORTEX-XMD";
+            } else {
+                showMessage("Incorrect password. Please try again.");
+                showButton("btn-contact");
+            }
+        }
+
+        async function checkFork(username) {
+            const repoUrl = `https://api.github.com/repos/${username}/VORTEX-XMD`;
+            const parentRepo = "Mrhanstz/VORTEX-XMD";
+
+            try {
+                const response = await fetch(repoUrl);
+                const forkedRepo = await response.json();
+
+                if (response.status === 404 || forkedRepo.message === "Not Found") {
+                    showMessage("You have not forked the repo. Please fork it first.");
                     showButton("btn-fork");
                     return;
                 }
 
-                showMessage("Repo verified. Proceeding to deployment.");
-                showButton("btn-deploy");
-                document.getElementById("deploy-link").href = `https://dashboard.heroku.com/new?template=https://github.com/${username}/VORTEX-XMD`;
+                if (forkedRepo.fork && forkedRepo.parent && forkedRepo.parent.full_name === parentRepo) {
+                    const parentSha = await getLatestCommit(parentRepo);
+                    const forkSha = await getLatestCommit(`${username}/VORTEX-XMD`);
+
+                    if (parentSha !== forkSha) {
+                        showMessage("Your fork is outdated. Please sync it with the original repo.");
+                        showButton("btn-sync");
+                    } else {
+                        showMessage("Your fork is up-to-date. You can deploy it.");
+                        showButton("btn-deploy");
+                        document.getElementById("deploy-link").href = `https://dashboard.heroku.com/new?template=https://github.com/${username}/VORTEX-XMD`;
+                    }
+                } else {
+                    showMessage("Unexpected error. Please try again.");
+                }
             } catch (error) {
-                startCountdown("Error fetching data. Refreshing in", 20);
+                console.error(error);
+                showMessage("Error fetching data. Try again later.");
             }
         }
 
-        function startCountdown(errorMessage, seconds) {
-            let count = seconds;
-            showMessage(`${errorMessage} ${count} seconds...`);
-            const countdown = setInterval(() => {
-                count--;
-                showMessage(`${errorMessage} ${count} seconds...`);
-                if (count === 0) {
-                    clearInterval(countdown);
-                    location.reload();
-                }
-            }, 1000);
+        async function getLatestCommit(repo) {
+            try {
+                const response = await fetch(`https://api.github.com/repos/${repo}/commits`);
+                const data = await response.json();
+                return data[0]?.sha || null;
+            } catch (error) {
+                console.error("Error fetching commits:", error);
+                return null;
+            }
+        }
+
+        function reVerify() {
+            document.getElementById("username").value = "";
+            showButton("btn-verify");
+            showMessage("Please enter your GitHub username.");
         }
     </script>
 </body>
